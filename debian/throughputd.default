@@ -1,0 +1,7 @@
+SQLITE_DATABASE=/var/lib/throughputd/throughputd.sqlite
+
+# Quoted list of interfaces to listen on. Empty string for all interfaces.
+INTERFACES=""
+
+# Snapshot interval in seconds - defaults: 60
+RECORD_INTERVAL=60

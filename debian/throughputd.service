@@ -1,0 +1,11 @@
+[Unit]
+Description=Network Traffic Statistics Monitoring (throughputd)
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/throughputd
+ExecStart=/usr/bin/throughputd -f ${SQLITE_DATABASE} -t ${RECORD_INTERVAL} ${INTERFACES}
+GuessMainPID=yes
+
+[Install]
+WantedBy=network.target

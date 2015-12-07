@@ -1,0 +1,13 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: throughputd
+Source: <http://github-server.datto.lan/tcaputi/throughputd/archive/master.zip>
+
+Files: *
+Copyright: 2015 Datto Inc. <softeng.team.dna@datto.com>
+Authors: Tom Caputi <tcaputi@datto.com>
+	Tim Crawford <tcrawford@datto.com>
+	Dan Fuhry <dfuhry@datto.com>
+License: Proprietary
+  Use of this program is subject to the terms and conditions set forth in the
+  Datto End-User License Agreement (EULA).
+

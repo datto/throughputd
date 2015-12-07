@@ -1,0 +1,15 @@
+Source: throughputd
+Section: net
+Priority: optional
+Maintainer: Dan Fuhry <dfuhry@datto.com>
+Build-Depends: debhelper (>= 9), dh-systemd, libpcap0.8-dev, libsqlite3-dev
+Standards-Version: 3.9.5
+Homepage: http://github-server.datto.lan/tcaputi/throughputd
+#Vcs-Git: git://anonscm.debian.org/collab-maint/throughputd.git
+#Vcs-Browser: http://anonscm.debian.org/?p=collab-maint/throughputd.git;a=summary
+
+Package: throughputd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
