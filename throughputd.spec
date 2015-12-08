@@ -32,10 +32,14 @@ BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	libpcap-devel
 
 # Provides the systemd macros
+%if 0%{?suse_version}
+BuildRequires: systemd-rpm-macros
+%else
 %if 0%{?mageia}
 BuildRequires:	systemd-devel
 %else
 BuildRequires:	systemd-units
+%endif
 %endif
 
 # Scriptlet requirements
@@ -72,6 +76,7 @@ install -pm 0444 debian/%{name}.service %{buildroot}%{_unitdir}/%{name}.service
 mkdir -p %{buildroot}%{_var}/lib/%{name}
 touch %{buildroot}%{_var}/lib/%{name}/%{name}.sqlite
 
+
 %files
 %{_bindir}/%{name}
 %{_unitdir}/%{name}.service
@@ -84,14 +89,18 @@ touch %{buildroot}%{_var}/lib/%{name}/%{name}.sqlite
 %endif
 %doc README.md
 
+
 %post
 %systemd_post %{name}.service
+
 
 %preun
 %systemd_preun %{name}.service
 
+
 %postun
 %systemd_postun_with_restart %{name}.service
+
 
 %changelog
 * Mon Dec  7 2015 Neal Gompa <ngompa@datto.com> - 1.1.0-1

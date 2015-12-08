@@ -42,17 +42,17 @@ Sample distribution packaging scripts for RPM based distributions (Fedora, CentO
 
    * Fedora/CentOS/RHEL install commands:
 
-      * `sudo dnf install rpm-build sqlite-devel libpcap-devel @development-tools` (Fedora 22 and newer)
+      * Fedora 22 and newer: `sudo dnf install rpm-build sqlite-devel libpcap-devel @development-tools`
 
-      * `sudo yum install rpm-build sqlite-devel libpcap-devel @development-tools` (CentOS/RHEL + Fedora 21 and older)
+      * CentOS/RHEL + Fedora 21 and older: `sudo yum install rpm-build sqlite-devel libpcap-devel @development-tools`
 
    * Mageia install commands:
 
-      * `sudo urpmi rpm-build sqlite3-devel pcap-devel gcc` (Mageia 5)
+      * Mageia 5: `sudo urpmi rpm-build sqlite3-devel pcap-devel gcc`
 
-      * `sudo dnf install rpm-build sqlite3-devel pcap-devel gcc` (Mageia 6)
+      * Mageia 6: `sudo dnf install rpm-build sqlite3-devel pcap-devel gcc`
 
-   * openSUSE install commands:
+   * openSUSE Tumbleweed install commands:
 
       * `sudo zypper install rpm-build sqlite-devel libpcap-devel gcc`
 
@@ -90,7 +90,7 @@ Fedora 21 and older/CentOS/RHEL: `sudo yum install </path/to/built/rpm>`
 
 Mageia 5: `sudo urpmi </path/to/built/rpm>`
 
-openSUSE: `sudo zypper install </path/to/built/rpm>`
+openSUSE Tumbleweed: `sudo zypper install </path/to/built/rpm>`
 
 #### Debian based distributions
 
