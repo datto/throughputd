@@ -1,3 +1,9 @@
+throughputd (1.1.0-2) unstable; urgency=high
+
+  * Fix Debian packaging scripts to match public source release
+
+ -- Neal Gompa <ngompa@datto.com>  Mon, 07 Dec 2015 21:23:43 -0500
+
 throughputd (1.1.0-1) unstable; urgency=low
 
   * Add unixy things like pid file writing and daemonizing
@@ -6,7 +12,6 @@ throughputd (1.1.0-1) unstable; urgency=low
 
 throughputd (1.0.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release
 
  -- Dan Fuhry <dfuhry@datto.com>  Thu, 19 Nov 2015 16:46:45 +0000
- 
