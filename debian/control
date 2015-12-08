@@ -4,12 +4,16 @@ Priority: optional
 Maintainer: Dan Fuhry <dfuhry@datto.com>
 Build-Depends: debhelper (>= 9), dh-systemd, libpcap0.8-dev, libsqlite3-dev
 Standards-Version: 3.9.5
-Homepage: http://github-server.datto.lan/tcaputi/throughputd
-#Vcs-Git: git://anonscm.debian.org/collab-maint/throughputd.git
-#Vcs-Browser: http://anonscm.debian.org/?p=collab-maint/throughputd.git;a=summary
+Homepage: https://github.com/datto/throughputd
+Vcs-Git: https://github.com/datto/throughputd.git
+Vcs-Browser: https://github.com/datto/throughputd
 
 Package: throughputd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Network Traffic Monitoring Tool
+ Throughputd is a network traffic monitoring utility.
+ It listens for IPv4 and IPv6 traffic and maintains records
+ of how much data (in bytes) is going to and from each IP.
+ This data is accumulated and saved to an SQLite database at
+ a set interval.
