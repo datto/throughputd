@@ -36,7 +36,8 @@
 
 #define HASHTABLE_ARRAY_SIZE 100
 #define PACKET_BUF_LEN 200
-#define PCAP_TIMEOUT_MS 5000
+#define PCAP_TIMEOUT_MS 1000
+#define RECORDING_THREAD_SLEEP_TIME 1
 
 #define SQL_SCHEMA_CREATE_STMT						\
 "CREATE TABLE IF NOT EXISTS %s (					\
@@ -106,7 +107,6 @@ struct throughputd_record{
 struct throughputd_context{
 	struct hashtable records;
 	struct ifaddrs *ifaddr;
-	char should_stop;
 	pthread_mutex_t lock;
 	pthread_t thread;
 	pcap_t *pcap_fd;
@@ -169,17 +169,20 @@ error:
 }
 
 static void *recording_thread(void *unused){
-	int ret, i;
+	int ret, i, sleep_cnt = 0;
 	char transaction_exists = 0;
 	time_t cur_time;
 	struct throughputd_context *ctx;
 	
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	
 	while(!should_stop_recording){
-		sleep(record_interval);
+		sleep(RECORDING_THREAD_SLEEP_TIME);
 		
-		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+		if(sleep_cnt < record_interval){
+			sleep_cnt++;
+			continue;
+		}
+		
+		sleep_cnt = 0;
 		
 		PRINT_DEBUG("interval elapsed, recording current state");
 		cur_time = time(NULL);
@@ -210,8 +213,6 @@ static void *recording_thread(void *unused){
 			goto error;
 		}
 		transaction_exists = 0;
-		
-		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	}
 	
 	return NULL;
@@ -344,14 +345,11 @@ static void handle_ipv6_packet(struct throughputd_context *ctx, const u_char *pa
 /*************************** Main processing Logic ****************************/
 
 static void on_packet_received(u_char *data, const struct pcap_pkthdr *pkt_header, const u_char *packet){
-	char should_stop;
 	struct throughputd_context *ctx = (struct throughputd_context *)data; 
 	struct ethernet_header *eth_header = (struct ethernet_header *)packet;
 	int tag_offset = 0;
 	uint8_t *eth_type_ptr;
 	uint16_t eth_type;
-	
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
 	
 reevaluate_type:
 	eth_type_ptr = ((uint8_t*)&eth_header->type) + tag_offset;
@@ -375,29 +373,15 @@ reevaluate_type:
 		PRINT_DEBUG("unrecognized packet recieved (0x%x)", eth_type);
 		break;
 	}
-	
-	pthread_mutex_lock(&ctx->lock);
-	should_stop = ctx->should_stop;
-	pthread_mutex_unlock(&ctx->lock);
-	
-	if(should_stop){
-		PRINT_DEBUG("stopping thread due to flag");
-		pcap_breakloop(ctx->pcap_fd);
-		return;
-	}
-	
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 }
 
 static void *interface_listening_thread(void *data){
 	int ret;
 	struct throughputd_context *ctx = (struct throughputd_context *)data;
-	
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	PRINT_DEBUG("beginning processing loop");
 	ret = pcap_loop(ctx->pcap_fd, -1, on_packet_received, data);
-	if(ret){
+	if(ret != 0 && ret != -2){
 		PRINT_ERROR(ret, "error running pcap loop");
 		return NULL;
 	}
@@ -413,7 +397,6 @@ static int initialize_thread_context(struct throughputd_context *ctx, struct ifa
 	char errbuf[PCAP_ERRBUF_SIZE];
 	
 	ctx->ifaddr = interface;
-	ctx->should_stop = 0;
 	
 	PRINT_DEBUG("initializing hashtable");
 	ret = hashtable_init(&ctx->records, HASHTABLE_ARRAY_SIZE);
@@ -453,9 +436,14 @@ error:
 }
 
 static void signal_handler(int sig){
+	int i;
+	
 	PRINT_DEBUG("----------------------- SIGTERM / SIGINT caught ---------------------------");
 	should_stop_recording = 1;
-	pthread_cancel(recording_pthread);
+	
+	for(i = 0; i < context_count; i++){
+		pcap_breakloop(throughputd_contexts[i].pcap_fd);
+	}
 }
 
 static int free_record(struct hashtable *records, struct hashtable_link *hl, void *data){
@@ -502,14 +490,6 @@ static void throughputd_cleanup(void){
 	
 	for(i = 0; i < context_count; i++){
 		ctx = &throughputd_contexts[i];
-		
-		PRINT_DEBUG("setting should stop for thread %s", ctx->ifaddr->ifa_name);
-		pthread_mutex_lock(&ctx->lock);
-		ctx->should_stop = 1;
-		pthread_mutex_unlock(&ctx->lock);
-		
-		PRINT_DEBUG("sending signal to thread");
-		pthread_cancel(ctx->thread);
 		
 		PRINT_DEBUG("waiting for thread to stop");
 		pthread_join(ctx->thread, NULL);
