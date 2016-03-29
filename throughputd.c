@@ -43,12 +43,13 @@
 "CREATE TABLE IF NOT EXISTS %s (					\
 	id INTEGER PRIMARY KEY AUTOINCREMENT,			\
 	ip TEXT NOT NULL,								\
+	interface TEXT NOT NULL,						\
 	timestamp INTEGER NOT NULL,						\
 	send_total INTEGER NOT NULL,					\
 	recv_total INTEGER NOT NULL						\
 );"
 
-#define SQL_INSERT_RECORD_STMT "INSERT INTO %s(ip, timestamp, send_total, recv_total) VALUES(?, ?, ?, ?);"
+#define SQL_INSERT_RECORD_STMT "INSERT INTO %s(ip, interface, timestamp, send_total, recv_total) VALUES(?, ?, ?, ?, ?);"
 
 #define SQL_CREATE_INDEX_STMT "CREATE INDEX IF NOT EXISTS nt_timestamp ON %s(timestamp);"
 
@@ -91,8 +92,8 @@ struct ipv4_header{
 struct ipv6_header{
 	uint32_t version_tc_flowlabel;
 	uint16_t len;
-	uint8_t  next_header;
-	uint8_t  hop_limit;
+	uint8_t next_header;
+	uint8_t hop_limit;
 	struct in6_addr src;
 	struct in6_addr dest;
 };
@@ -107,6 +108,7 @@ struct throughputd_record{
 struct throughputd_context{
 	struct hashtable records;
 	struct ifaddrs *ifaddr;
+	time_t cur_time;
 	pthread_mutex_t lock;
 	pthread_t thread;
 	pcap_t *pcap_fd;
@@ -135,7 +137,7 @@ static struct sigaction signal_action = {
 static int record_entry(struct hashtable *records, struct hashtable_link *hl, void *data){
 	int ret;
 	sqlite3_stmt *stmt = NULL;
-	time_t *cur_time = (time_t *)data;
+	struct throughputd_context *ctx = data;
 	struct throughputd_record *record = container_of(hl, struct throughputd_record, link);
 	
 	ret = sqlite3_prepare_v2(db, insert_stmt, strlen(insert_stmt), &stmt, NULL);
@@ -145,9 +147,10 @@ static int record_entry(struct hashtable *records, struct hashtable_link *hl, vo
 	}
 		
 	sqlite3_bind_text(stmt, 1, record->lan_ip, strlen(record->lan_ip), NULL);
-	sqlite3_bind_int64(stmt, 2, *cur_time);
-	sqlite3_bind_int64(stmt, 3, record->send_total);
-	sqlite3_bind_int64(stmt, 4, record->recv_total);
+	sqlite3_bind_text(stmt, 2, ctx->ifaddr->ifa_name, strlen(ctx->ifaddr->ifa_name), NULL);
+	sqlite3_bind_int64(stmt, 3, ctx->cur_time);
+	sqlite3_bind_int64(stmt, 4, record->send_total);
+	sqlite3_bind_int64(stmt, 5, record->recv_total);
 	
 	ret = sqlite3_step(stmt);
 	if(ret != SQLITE_DONE) {
@@ -196,11 +199,12 @@ static void *recording_thread(void *unused){
 		
 		for(i = 0; i < context_count; i++){
 			ctx = &throughputd_contexts[i];
+			ctx->cur_time = cur_time;
 			
 			pthread_mutex_lock(&ctx->lock);
 			
 			PRINT_DEBUG("recording current state for %s", ctx->ifaddr->ifa_name);
-			ret = hashtable_for_each_key(&ctx->records, record_entry, &cur_time);
+			ret = hashtable_for_each_key(&ctx->records, record_entry, ctx);
 			if(ret) goto error;
 			
 			pthread_mutex_unlock(&ctx->lock);
