@@ -1,3 +1,9 @@
+throughputd (1.2.0-1) unstable; urgency=high
+
+  * Fixed a bug where recording interval was inaccurate
+
+ -- Tom Caputi <tcaputi@datto.com>  Thu, 08 Dec 2016 11:40:00 -0500
+
 throughputd (1.1.0-2) unstable; urgency=high
 
   * Fix Debian packaging scripts to match public source release

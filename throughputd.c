@@ -180,7 +180,7 @@ static void *recording_thread(void *unused){
 	while(!should_stop_recording){
 		sleep(RECORDING_THREAD_SLEEP_TIME);
 		
-		if(sleep_cnt < record_interval){
+		if(sleep_cnt + 1 < record_interval){
 			sleep_cnt++;
 			continue;
 		}
