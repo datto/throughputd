@@ -211,9 +211,14 @@ static void *recording_thread(void *unused){
 		}
 		
 		PRINT_DEBUG("committing transaction");
+
+recommit_transaction:
 		ret = sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
-		if(ret != SQLITE_OK){
-			PRINT_ERROR(ret, "error committing transaction");
+		if(ret == SQLITE_BUSY){
+			PRINT_DEBUG("transaction commit returned busy, retrying");
+			goto recommit_transaction;
+		}else if(ret != SQLITE_OK){
+			PRINT_ERROR(ret, "error committing transaction: %s", sqlite3_errmsg(db));
 			goto error;
 		}
 		transaction_exists = 0;
