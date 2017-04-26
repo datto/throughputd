@@ -1,5 +1,5 @@
 Name:		throughputd
-Version:	1.3.0
+Version:	1.4.0
 Release:	1%{?dist}
 Summary:	A network traffic monitoring tool
 
@@ -103,7 +103,9 @@ touch %{buildroot}%{_var}/lib/%{name}/%{name}.sqlite
 
 
 %changelog
-* Thu Jan 12 2017 Tom Caputi <tcaputi@datto.com> - 1.2.0-1
+* Wed Apr 26 2017 Tom Caputi <tcaputi@datto.com> - 1.4.0-1
+- Fixed handling when database is busy
+* Thu Jan 12 2017 Tom Caputi <tcaputi@datto.com> - 1.3.0-1
 - Added retry logic for transaction commits
 * Thu Dec  8 2016 Tom Caputi <tcaputi@datto.com> - 1.2.0-1
 - Fixed a bug where recording interval was inaccurate
