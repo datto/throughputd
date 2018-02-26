@@ -7,11 +7,11 @@ else
 CFLAGS := -O3 -Wall -Werror
 endif
 
-LDFLAGS := 
+LDFLAGS :=
 CC := gcc
 LIBS = -lpcap -lpthread -lsqlite3
 
-DESTDIR := 
+DESTDIR :=
 PREFIX := /usr/local
 BINDIR := bin
 
@@ -23,7 +23,7 @@ BINDIR := bin
 all: $(SOURCES:.c=.o)
 	$(CC) $(LDFLAGS) -o $(BINARY_NAME) $(SOURCES:.c=.o) $(LIBS)
 
-install: $(BIANRY_NAME)
+install: $(BINARY_NAME)
 	mkdir -p $(DESTDIR)$(PREFIX)/$(BINDIR)
 	install -m755 $(BINARY_NAME) $(DESTDIR)$(PREFIX)/$(BINDIR)/$(BINARY_NAME)
 

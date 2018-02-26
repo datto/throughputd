@@ -467,7 +467,7 @@ reevaluate_type:
 		PRINT_DEBUG("ARP packet");
 		break;
 	default:
-		PRINT_DEBUG("unrecognized packet recieved (0x%x)", eth_type);
+		PRINT_DEBUG("unrecognized packet received (0x%x)", eth_type);
 		break;
 	}
 }
@@ -519,7 +519,7 @@ static int initialize_thread_context(struct throughputd_context *ctx, struct ifa
 	PRINT_DEBUG("creating thread");
 	ret = pthread_create(&ctx->thread, NULL, interface_listening_thread, ctx);
 	if(ret){
-		PRINT_ERROR(ret, "error starting trafic monitoring thread");
+		PRINT_ERROR(ret, "error starting traffic monitoring thread");
 		goto error;
 	}
 
@@ -832,7 +832,7 @@ int main(int argc, char **argv){
 	PRINT_DEBUG("creating recording thread");
 	ret = pthread_create(&recording_pthread, NULL, recording_thread, NULL);
 	if(ret){
-		PRINT_ERROR(ret, "error starting trafic monitoring thread");
+		PRINT_ERROR(ret, "error starting traffic monitoring thread");
 		goto error;
 	}
 
